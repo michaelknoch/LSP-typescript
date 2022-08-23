@@ -2,7 +2,7 @@ from .protocol import InlayHint, InlayHintRequestParams, InlayHintResponse
 from html import escape as html_escape
 from LSP.plugin import SessionBufferProtocol
 from LSP.plugin import uri_to_filename
-from LSP.plugin.core.protocol import Point
+from LSP.plugin.core.protocol import Point, Response
 from LSP.plugin.core.typing import Any, Callable, List, Optional
 from LSP.plugin.core.views import point_to_offset
 from LSP.plugin.core.views import text_document_identifier
@@ -73,6 +73,10 @@ class LspTypescriptPlugin(NpmClientHandler):
 
         # Server doesn't require any specific response.
         respond(None)
+
+    def on_server_response_async(self, method: str, response: Response) -> None:
+        if method == "textDocument/completion" and isinstance(response.result, dict) and response.result.get("items") :
+            response.result["items"] = response.result["items"][0:1000]
 
     # --- AbstractPlugin handlers --------------------------------------------------------------------------------------
 
